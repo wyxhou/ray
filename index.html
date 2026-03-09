@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ray · A Star For You</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2303030a'/%3E%3Cpolygon points='16,4 17.8,11.2 25,11.2 19.2,15.8 21.4,23 16,18.6 10.6,23 12.8,15.8 7,11.2 14.2,11.2' fill='%23a8c4f0' opacity='0.9'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cinzel:wght@400;500&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void:      #03030a;
+    --star-blue: #b0ccff;
+    --star-dim:  #6878a8;
+    --text:      #c8d8f8;
+    --text-dim:  #5868a0;
+    --text-gold: #d8c898;
+  }
+
+- { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+width:100%; height:100%;
+background: var(–void);
+overflow: hidden;
+font-family: ‘EB Garamond’, serif;
+color: var(–text);
+cursor: crosshair;
+}
+
+#bg { position:fixed; inset:0; z-index:0; }
+
+.nebula {
+position:fixed; inset:0; z-index:1; pointer-events:none;
+background:
+radial-gradient(ellipse 55% 40% at 30% 60%, rgba(60,30,120,0.18) 0%, transparent 70%),
+radial-gradient(ellipse 40% 55% at 75% 30%, rgba(20,50,140,0.14) 0%, transparent 65%),
+radial-gradient(ellipse 35% 30% at 55% 80%, rgba(80,20,100,0.10) 0%, transparent 60%);
+animation: nebulaDrift 30s ease-in-out infinite alternate;
+}
+
+@keyframes nebulaDrift {
+from { transform:scale(1); opacity:0.8; }
+to   { transform:scale(1.08) rotate(1deg); opacity:1; }
+}
+
+.shoot {
+position:fixed; height:1px;
+background:linear-gradient(to right, transparent, rgba(180,210,255,0.9), transparent);
+border-radius:1px; pointer-events:none; z-index:2; opacity:0;
+animation: shootAcross linear forwards;
+}
+
+@keyframes shootAcross {
+0%  { transform:translateX(-200px) rotate(-18deg); opacity:0; }
+5%  { opacity:1; }
+30% { opacity:0; }
+100%{ transform:translateX(110vw) rotate(-18deg); opacity:0; }
+}
+
+/* ── SECTIONS ───────────────────────────────────────────────────────── */
+.section {
+position:fixed; inset:0; z-index:10;
+display:flex; flex-direction:column;
+align-items:center; justify-content:center;
+padding:40px;
+opacity:0; pointer-events:none;
+transition: opacity 0.9s ease;
+}
+
+.section.active { opacity:1; pointer-events:all; }
+
+/* ── S0: TITLE ──────────────────────────────────────────────────────── */
+.s0-eyebrow {
+font-family:‘Cinzel’,serif;
+font-size:clamp(0.55rem,1.5vw,0.72rem);
+letter-spacing:0.35em; color:var(–text-dim);
+text-transform:uppercase; margin-bottom:32px;
+opacity:0; transform:translateY(10px);
+transition: opacity 1s ease 0.3s, transform 1s ease 0.3s;
+}
+.section.active .s0-eyebrow { opacity:1; transform:translateY(0); }
+
+.s0-question {
+font-family:‘Cormorant Garamond’,serif;
+font-style:italic; font-weight:300;
+font-size:clamp(1.5rem,4.5vw,2.8rem);
+color:var(–text); text-align:center;
+line-height:1.65; max-width:680px;
+opacity:0; transform:translateY(16px);
+transition: opacity 1.2s ease 0.7s, transform 1.2s ease 0.7s;
+}
+.section.active .s0-question { opacity:1; transform:translateY(0); }
+
+.s0-pulse {
+margin-top:50px; width:8px; height:8px; border-radius:50%;
+background:var(–star-blue);
+box-shadow:0 0 12px 4px rgba(150,190,255,0.5),0 0 40px 12px rgba(100,150,255,0.2);
+animation:pulsate 2.5s ease-in-out infinite;
+opacity:0; transition:opacity 1s ease 1.8s;
+}
+.section.active .s0-pulse { opacity:1; }
+
+@keyframes pulsate {
+0%,100%{ transform:scale(1); box-shadow:0 0 12px 4px rgba(150,190,255,0.5),0 0 40px 12px rgba(100,150,255,0.2); }
+50%    { transform:scale(1.6); box-shadow:0 0 22px 8px rgba(150,190,255,0.8),0 0 65px 22px rgba(100,150,255,0.35); }
+}
+
+.s0-hint {
+position:absolute; bottom:44px;
+font-family:‘Cinzel’,serif; font-size:0.55rem;
+letter-spacing:0.3em; color:var(–text-dim);
+text-transform:uppercase; opacity:0;
+transition:opacity 1s ease 2.4s;
+animation:hintBlink 2.5s ease-in-out infinite 2.4s;
+}
+.section.active .s0-hint { opacity:0.55; }
+
+@keyframes hintBlink {
+0%,100%{ opacity:0.25; } 50%{ opacity:0.7; }
+}
+
+/* ── S1: CONSTELLATION ──────────────────────────────────────────────── */
+.s1-label {
+font-family:‘Cinzel’,serif;
+font-size:clamp(0.55rem,1.5vw,0.72rem);
+letter-spacing:0.28em; color:var(–text-dim);
+text-align:center; margin-bottom:16px;
+opacity:0; transition:opacity 0.8s ease 0.2s;
+}
+.section.active .s1-label { opacity:1; }
+
+#constSvg {
+width:min(90vw,560px); height:min(70vh,460px);
+display:block;
+}
+
+.cline {
+stroke:rgba(160,195,255,0.2); stroke-width:0.5; fill:none;
+stroke-dasharray:200; stroke-dashoffset:200;
+transition:stroke-dashoffset 1.8s ease;
+}
+.section.active .cline { stroke-dashoffset:0; }
+
+.cdot {
+fill:rgba(210,228,255,0.75);
+opacity:0; transition:opacity 0.5s ease;
+filter:url(#sg);
+}
+.section.active .cdot { opacity:1; }
+
+.clabel {
+fill:rgba(100,135,195,0.5);
+font-family:‘Cinzel’,serif;
+font-size:2px; letter-spacing:0.4px;
+opacity:0; transition:opacity 0.6s ease 2s;
+}
+.section.active .clabel { opacity:1; }
+
+.rdot { fill:white; filter:url(#rg); animation:rBreath 3s ease-in-out infinite; }
+@keyframes rBreath { 0%,100%{opacity:0.85;} 50%{opacity:1;} }
+
+.rring {
+fill:none; stroke:rgba(160,205,255,0.28); stroke-width:0.25;
+animation:rRing 3s ease-out infinite;
+}
+@keyframes rRing { 0%{r:2;opacity:0.5;} 100%{r:7;opacity:0;} }
+
+.s1-name {
+font-family:‘Cormorant Garamond’,serif; font-weight:300;
+font-size:clamp(2.2rem,6vw,4.2rem); letter-spacing:0.22em;
+color:var(–star-blue); text-align:center;
+text-shadow:0 0 50px rgba(140,180,255,0.45);
+margin-top:8px;
+opacity:0; transform:translateY(10px);
+transition:opacity 1s ease 2.2s, transform 1s ease 2.2s;
+}
+.section.active .s1-name { opacity:1; transform:translateY(0); }
+
+/* ── S2: DATA ────────────────────────────────────────────────────────── */
+.s2-title {
+font-family:‘Cinzel’,serif;
+font-size:clamp(0.52rem,1.4vw,0.68rem);
+letter-spacing:0.3em; color:var(–text-dim);
+text-transform:uppercase; margin-bottom:26px;
+opacity:0; transition:opacity 0.8s ease 0.1s;
+}
+.section.active .s2-title { opacity:1; }
+
+.data-cards {
+display:grid; grid-template-columns:repeat(2,1fr);
+gap:12px; max-width:520px; width:100%;
+}
+
+.dc {
+background:rgba(8,10,28,0.75);
+border:1px solid rgba(100,140,220,0.13);
+border-radius:4px; padding:16px 18px;
+backdrop-filter:blur(12px);
+opacity:0; transform:translateY(16px);
+transition:opacity 0.65s ease, transform 0.65s ease;
+position:relative; overflow:hidden;
+}
+.dc::before {
+content:’’; position:absolute; top:0; left:0; right:0; height:1px;
+background:linear-gradient(to right, transparent, rgba(140,180,255,0.22), transparent);
+}
+.section.active .dc { opacity:1; transform:translateY(0); }
+.section.active .dc:nth-child(1){transition-delay:0.15s;}
+.section.active .dc:nth-child(2){transition-delay:0.28s;}
+.section.active .dc:nth-child(3){transition-delay:0.41s;}
+.section.active .dc:nth-child(4){transition-delay:0.54s;}
+.section.active .dc:nth-child(5){transition-delay:0.67s;}
+.section.active .dc:nth-child(6){transition-delay:0.80s;}
+.section.active .dc:nth-child(7){transition-delay:0.93s;}
+.section.active .dc:nth-child(8){transition-delay:1.06s;}
+
+.dc-label {
+font-family:‘Cinzel’,serif; font-size:0.5rem;
+letter-spacing:0.22em; color:var(–text-dim);
+text-transform:uppercase; margin-bottom:6px;
+}
+
+.dc-val { font-family:‘Cormorant Garamond’,serif; font-size:1rem; color:var(–text); line-height:1.3; }
+.dc-val.b { color:var(–star-blue); font-style:italic; }
+.dc-val.g { color:var(–text-gold); }
+
+/* ── S3: DEDICATION ──────────────────────────────────────────────────── */
+.ded-wrap {
+max-width:600px; width:100%;
+text-align:center; position:relative;
+}
+
+.ded-bg {
+position:absolute; top:50%; left:50%;
+transform:translate(-50%,-50%);
+width:320px; height:320px; border-radius:50%;
+background:radial-gradient(circle, rgba(100,150,255,0.07) 0%, transparent 70%);
+pointer-events:none; animation:dedPulse 5s ease-in-out infinite;
+}
+@keyframes dedPulse { 0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.6;} 50%{transform:translate(-50%,-50%) scale(1.35);opacity:1;} }
+
+.ded-sh, .ded-sv {
+position:absolute; top:50%; left:50%;
+pointer-events:none;
+background:linear-gradient(to right, transparent, rgba(140,180,255,0.1), transparent);
+}
+.ded-sh { width:600px; height:1px; transform:translate(-50%,-50%); animation:spkB 5s ease-in-out infinite; }
+.ded-sv { width:1px; height:600px; transform:translate(-50%,-50%); animation:spkB 5s ease-in-out infinite 1.2s; }
+@keyframes spkB { 0%,100%{opacity:0.3;} 50%{opacity:1;} }
+
+.ded-eye {
+font-family:‘Cinzel’,serif; font-size:0.54rem;
+letter-spacing:0.35em; color:var(–text-dim);
+text-transform:uppercase; margin-bottom:34px;
+opacity:0; transition:opacity 0.8s ease 0.2s;
+}
+.section.active .ded-eye { opacity:1; }
+
+.ded-line {
+font-family:‘Cormorant Garamond’,serif;
+font-style:italic; font-weight:300;
+font-size:clamp(1.1rem,2.8vw,1.55rem);
+color:var(–text); line-height:2.1;
+opacity:0; transform:translateY(10px);
+transition:opacity 0.9s ease, transform 0.9s ease;
+display:block;
+}
+.section.active .ded-line:nth-child(1){opacity:1;transform:translateY(0);transition-delay:0.5s;}
+.section.active .ded-line:nth-child(2){opacity:1;transform:translateY(0);transition-delay:1.15s;}
+.section.active .ded-line:nth-child(3){opacity:1;transform:translateY(0);transition-delay:1.8s;}
+
+.ded-div {
+width:1px; height:48px;
+background:linear-gradient(to bottom, transparent, rgba(140,180,255,0.28), transparent);
+margin:26px auto;
+opacity:0; transition:opacity 0.8s ease 2.5s;
+}
+.section.active .ded-div { opacity:1; }
+
+.ded-sign {
+font-family:‘Cormorant Garamond’,serif; font-size:0.88rem;
+color:var(–text-dim); letter-spacing:0.18em;
+opacity:0; transition:opacity 0.8s ease 2.9s;
+}
+.section.active .ded-sign { opacity:1; }
+
+/* ── NAV ────────────────────────────────────────────────────────────── */
+.nav {
+position:fixed; right:26px; top:50%;
+transform:translateY(-50%); z-index:50;
+display:flex; flex-direction:column; gap:14px;
+}
+
+.ndot {
+width:6px; height:6px; border-radius:50%;
+background:var(–text-dim); cursor:pointer;
+opacity:0.45;
+transition:background 0.3s, transform 0.3s, box-shadow 0.3s, opacity 0.3s;
+}
+.ndot.on {
+background:var(–star-blue); transform:scale(1.5); opacity:1;
+box-shadow:0 0 8px 2px rgba(140,180,255,0.55);
+}
+
+.click-zone { position:fixed; inset:0; z-index:9; cursor:pointer; }
+
+.skip-btn {
+position:fixed; top:22px; right:22px; z-index:60;
+background:none; border:none;
+font-family:‘Cinzel’,serif; font-size:0.55rem;
+letter-spacing:0.2em; color:var(–text-dim);
+cursor:pointer; text-transform:uppercase; padding:8px 12px;
+opacity:0.45; transition:opacity 0.2s;
+}
+.skip-btn:hover { opacity:1; }
+
+@media(max-width:500px){
+.data-cards{grid-template-columns:1fr; max-width:300px;}
+#constSvg{width:95vw; height:55vh;}
+}
+</style>
+
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="nebula"></div>
+<div class="click-zone" id="cz"></div>
+<div class="nav" id="nav"></div>
+<button class="skip-btn" id="skip" onclick="goTo(3)">skip ›</button>
+
+<!-- S0: TITLE -->
+
+<div class="section active" id="s0">
+  <p class="s0-eyebrow">for Bagachi · november 17, 2025</p>
+  <h1 class="s0-question">somewhere in the night sky,<br>there is a star that belongs to us</h1>
+  <div class="s0-pulse"></div>
+  <p class="s0-hint">touch anywhere to continue</p>
+</div>
+
+<!-- S1: CONSTELLATION -->
+
+<div class="section" id="s1">
+  <p class="s1-label">Orion · visible from Bangalore · November 17, 2025</p>
+  <svg id="constSvg" viewBox="20 20 50 60" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <filter id="sg" x="-100%" y="-100%" width="300%" height="300%">
+        <feGaussianBlur stdDeviation="0.5" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="rg" x="-200%" y="-200%" width="500%" height="500%">
+        <feGaussianBlur stdDeviation="2" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+  </svg>
+  <p class="s1-name">Ray</p>
+</div>
+
+<!-- S2: DATA -->
+
+<div class="section" id="s2">
+  <p class="s2-title">· star registry · β orionis ·</p>
+  <div class="data-cards">
+    <div class="dc"><div class="dc-label">Name</div><div class="dc-val b">Ray</div></div>
+    <div class="dc"><div class="dc-label">Designation</div><div class="dc-val b">β Orionis · Rigel</div></div>
+    <div class="dc"><div class="dc-label">Constellation</div><div class="dc-val">Orion</div></div>
+    <div class="dc"><div class="dc-label">Spectral Type</div><div class="dc-val b">Blue-White Supergiant</div></div>
+    <div class="dc"><div class="dc-label">Distance</div><div class="dc-val">~860 light years</div></div>
+    <div class="dc"><div class="dc-label">Magnitude</div><div class="dc-val">0.13 · 7th brightest</div></div>
+    <div class="dc"><div class="dc-label">Coordinates</div><div class="dc-val">RA 05h 14m · Dec −08° 12′</div></div>
+    <div class="dc"><div class="dc-label">Named</div><div class="dc-val g">Bangalore · 17 · XI · 2025</div></div>
+  </div>
+</div>
+
+<!-- S3: DEDICATION -->
+
+<div class="section" id="s3">
+  <div class="ded-wrap">
+    <div class="ded-bg"></div>
+    <div class="ded-sh"></div>
+    <div class="ded-sv"></div>
+    <p class="ded-eye">· a dedication ·</p>
+    <div>
+      <span class="ded-line">on the night of november 17th, this star rose over bangalore.</span>
+      <span class="ded-line">i like to think the universe was marking the occasion.</span>
+      <span class="ded-line">this is yours, my love — bright, steady, and seen.</span>
+    </div>
+    <div class="ded-div"></div>
+    <p class="ded-sign">named for you · by Aishu · with love</p>
+  </div>
+</div>
+
+<script>
+// ── CANVAS ─────────────────────────────────────────────────────────────────
+const cv  = document.getElementById('bg');
+const cx  = cv.getContext('2d');
+let W, H, stars = [];
+
+function resize() { W = cv.width = innerWidth; H = cv.height = innerHeight; }
+
+function initStars() {
+  stars = [];
+  for (let i=0; i<500; i++) {
+    const sz = Math.random()<0.65 ? Math.random()*1.2+0.3
+             : Math.random()<0.9  ? Math.random()*1.8+1.2
+             : Math.random()*2.5+2;
+    stars.push({
+      x:Math.random()*W, y:Math.random()*H,
+      r:sz/2,
+      base:Math.random()*0.45+0.1,
+      sp:Math.random()*0.014+0.004,
+      ph:Math.random()*Math.PI*2,
+      blue:Math.random()>0.58,
+    });
+  }
+}
+
+function drawStars(t) {
+  cx.clearRect(0,0,W,H);
+  // Background gradient — deep blue-violet
+  const g = cx.createRadialGradient(W*.5,H*.4,0,W*.5,H*.4,Math.max(W,H)*.9);
+  g.addColorStop(0,'#08071c');
+  g.addColorStop(0.45,'#050414');
+  g.addColorStop(1,'#03030a');
+  cx.fillStyle=g; cx.fillRect(0,0,W,H);
+
+  stars.forEach(s=>{
+    const a = s.base + Math.sin(t*s.sp+s.ph)*(s.base*0.75);
+    cx.beginPath();
+    cx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    cx.fillStyle = s.blue ? `rgba(175,210,255,${a})` : `rgba(228,232,255,${a})`;
+    cx.fill();
+    if(s.r>1.3){
+      const rg = cx.createRadialGradient(s.x,s.y,0,s.x,s.y,s.r*6);
+      rg.addColorStop(0,`rgba(150,195,255,${a*0.38})`);
+      rg.addColorStop(1,'transparent');
+      cx.beginPath(); cx.arc(s.x,s.y,s.r*6,0,Math.PI*2);
+      cx.fillStyle=rg; cx.fill();
+    }
+  });
+}
+
+resize(); initStars();
+let then=0;
+(function loop(t){
+  drawStars(t*.001);
+  requestAnimationFrame(loop);
+})(0);
+window.addEventListener('resize',()=>{resize();initStars();});
+
+// Parallax
+document.addEventListener('mousemove',e=>{
+  const mx=(e.clientX/W-.5), my=(e.clientY/H-.5);
+  cv.style.transform=`translate(${mx*12}px,${my*8}px)`;
+  document.querySelector('.nebula').style.transform=`translate(${mx*5}px,${my*3}px)`;
+});
+
+// ── SHOOTING STARS ─────────────────────────────────────────────────────────
+function spawnShoot(){
+  const el=document.createElement('div');
+  el.className='shoot';
+  const len=90+Math.random()*180;
+  el.style.cssText=`width:${len}px;top:${Math.random()*65}%;left:${Math.random()*55}%;animation-duration:${2+Math.random()*2.5}s;`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),6000);
+}
+spawnShoot();
+setInterval(spawnShoot, 5000+Math.random()*6000);
+
+// ── CONSTELLATION ──────────────────────────────────────────────────────────
+// Orion stars in SVG viewBox coords (viewBox="20 20 50 60")
+const orion = [
+  { name:'Betelgeuse', x:37, y:33, r:0.9, lbl:true  },
+  { name:'Bellatrix',  x:55, y:31, r:0.7, lbl:true  },
+  { name:'Mintaka',    x:41, y:49, r:0.5             },
+  { name:'Alnilam',    x:46, y:51, r:0.55            },
+  { name:'Alnitak',    x:51, y:53, r:0.5             },
+  { name:'Saiph',      x:39, y:69, r:0.6             },
+  { name:'Rigel',      x:57, y:67, r:1.2, isRigel:true },
+];
+
+const pairs = [[0,1],[0,2],[1,3],[2,3],[3,4],[4,5],[4,6],[2,6],[0,5]];
+const svg   = document.getElementById('constSvg');
+
+// Lines
+pairs.forEach(([a,b],idx)=>{
+  const s1=orion[a], s2=orion[b];
+  const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+  ln.setAttribute('x1',s1.x); ln.setAttribute('y1',s1.y);
+  ln.setAttribute('x2',s2.x); ln.setAttribute('y2',s2.y);
+  ln.setAttribute('class','cline');
+  const len=Math.hypot(s2.x-s1.x,s2.y-s1.y);
+  ln.setAttribute('stroke-dasharray',len);
+  ln.setAttribute('stroke-dashoffset',len);
+  ln.style.transitionDelay=`${0.5+idx*0.15}s`;
+  svg.appendChild(ln);
+});
+
+// Stars
+orion.forEach((s,i)=>{
+  if(s.isRigel){
+    for(let r=0;r<3;r++){
+      const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      ring.setAttribute('cx',s.x); ring.setAttribute('cy',s.y);
+      ring.setAttribute('r','2'); ring.setAttribute('class','rring');
+      ring.style.animationDelay=`${r}s`;
+      svg.appendChild(ring);
+    }
+    const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx',s.x); dot.setAttribute('cy',s.y);
+    dot.setAttribute('r',s.r); dot.setAttribute('class','rdot');
+    svg.appendChild(dot);
+    const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',s.x+1.8); lbl.setAttribute('y',s.y-2);
+    lbl.setAttribute('class','clabel');
+    lbl.setAttribute('fill','rgba(160,205,255,0.75)');
+    lbl.setAttribute('font-size','2');
+    lbl.textContent='RAY ✦';
+    svg.appendChild(lbl);
+  } else {
+    const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx',s.x); dot.setAttribute('cy',s.y);
+    dot.setAttribute('r',s.r); dot.setAttribute('class','cdot');
+    dot.style.transitionDelay=`${1.2+i*0.12}s`;
+    svg.appendChild(dot);
+    if(s.lbl){
+      const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+      lbl.setAttribute('x',s.x+1.2); lbl.setAttribute('y',s.y-1.4);
+      lbl.setAttribute('class','clabel');
+      lbl.textContent=s.name.toUpperCase();
+      svg.appendChild(lbl);
+    }
+  }
+});
+
+// ── SECTION SYSTEM ─────────────────────────────────────────────────────────
+const TOTAL=4;
+let cur=0, busy=false;
+
+// Nav dots
+const navEl=document.getElementById('nav');
+for(let i=0;i<TOTAL;i++){
+  const d=document.createElement('div');
+  d.className='ndot'+(i===0?' on':'');
+  d.onclick=()=>goTo(i);
+  navEl.appendChild(d);
+}
+
+function goTo(n){
+  if(busy||n===cur||n<0||n>=TOTAL)return;
+  busy=true;
+  document.getElementById('s'+cur).classList.remove('active');
+  setTimeout(()=>{
+    document.getElementById('s'+n).classList.add('active');
+    busy=false;
+  },420);
+  document.querySelectorAll('.ndot').forEach((d,i)=>d.classList.toggle('on',i===n));
+  cur=n;
+  const sk=document.getElementById('skip');
+  sk.style.opacity=n===TOTAL-1?'0':'';
+  sk.style.pointerEvents=n===TOTAL-1?'none':'';
+}
+
+function next(){ goTo(cur+1); }
+function prev(){ goTo(cur-1); }
+
+document.getElementById('cz').addEventListener('click', next);
+document.addEventListener('keydown',e=>{
+  if(['ArrowRight','ArrowDown',' '].includes(e.key)) next();
+  else if(['ArrowLeft','ArrowUp'].includes(e.key)) prev();
+});
+
+let tx=0;
+document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-tx;
+  if(Math.abs(dx)>40) dx<0?next():prev();
+},{passive:true});
+</script>
+
+</body>
+</html>
