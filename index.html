@@ -10,11 +10,11 @@
 <style>
   :root {
     --void:      #03030a;
-    --star-blue: #b0ccff;
-    --star-dim:  #6878a8;
-    --text:      #c8d8f8;
-    --text-dim:  #5868a0;
-    --text-gold: #d8c898;
+    --star-blue: #cce0ff;
+    --star-dim:  #8898c8;
+    --text:      #eef4ff;
+    --text-dim:  #a0aed0;
+    --text-gold: #eedda8;
   }
 
 - { margin:0; padding:0; box-sizing:border-box; }
@@ -66,6 +66,7 @@ align-items:center; justify-content:center;
 padding:40px;
 opacity:0; pointer-events:none;
 transition: opacity 0.9s ease;
+background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 20%, rgba(3,3,10,0.6) 100%);
 }
 
 .section.active { opacity:1; pointer-events:all; }
@@ -87,6 +88,7 @@ font-style:italic; font-weight:300;
 font-size:clamp(1.5rem,4.5vw,2.8rem);
 color:var(–text); text-align:center;
 line-height:1.65; max-width:680px;
+text-shadow: 0 2px 24px rgba(0,0,8,0.9), 0 0 60px rgba(0,0,0,0.7);
 opacity:0; transform:translateY(16px);
 transition: opacity 1.2s ease 0.7s, transform 1.2s ease 0.7s;
 }
@@ -169,8 +171,8 @@ animation:rRing 3s ease-out infinite;
 .s1-name {
 font-family:‘Cormorant Garamond’,serif; font-weight:300;
 font-size:clamp(2.2rem,6vw,4.2rem); letter-spacing:0.22em;
-color:var(–star-blue); text-align:center;
-text-shadow:0 0 50px rgba(140,180,255,0.45);
+color:#d8eaff; text-align:center;
+text-shadow:0 0 50px rgba(140,180,255,0.5), 0 2px 16px rgba(0,0,0,0.95);
 margin-top:8px;
 opacity:0; transform:translateY(10px);
 transition:opacity 1s ease 2.2s, transform 1s ease 2.2s;
@@ -193,7 +195,7 @@ gap:12px; max-width:520px; width:100%;
 }
 
 .dc {
-background:rgba(8,10,28,0.75);
+background:rgba(4,5,18,0.88);
 border:1px solid rgba(100,140,220,0.13);
 border-radius:4px; padding:16px 18px;
 backdrop-filter:blur(12px);
@@ -221,9 +223,9 @@ letter-spacing:0.22em; color:var(–text-dim);
 text-transform:uppercase; margin-bottom:6px;
 }
 
-.dc-val { font-family:‘Cormorant Garamond’,serif; font-size:1rem; color:var(–text); line-height:1.3; }
-.dc-val.b { color:var(–star-blue); font-style:italic; }
-.dc-val.g { color:var(–text-gold); }
+.dc-val { font-family:‘Cormorant Garamond’,serif; font-size:1rem; color:var(–text); line-height:1.3; text-shadow: 0 1px 12px rgba(0,0,0,0.9); }
+.dc-val.b { color:#d8eaff; font-style:italic; }
+.dc-val.g { color:#f2e4b0; }
 
 /* ── S3: DEDICATION ──────────────────────────────────────────────────── */
 .ded-wrap {
@@ -262,6 +264,7 @@ font-family:‘Cormorant Garamond’,serif;
 font-style:italic; font-weight:300;
 font-size:clamp(1.1rem,2.8vw,1.55rem);
 color:var(–text); line-height:2.1;
+text-shadow: 0 2px 20px rgba(0,0,8,0.95), 0 0 40px rgba(0,0,0,0.8);
 opacity:0; transform:translateY(10px);
 transition:opacity 0.9s ease, transform 0.9s ease;
 display:block;
